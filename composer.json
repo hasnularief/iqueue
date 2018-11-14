@@ -1,0 +1,27 @@
+{
+    "name": "hasnularief/iqueue",
+    "description": "Indonesia Queue System (Sistem Antrian Bahasa Indonesia)",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hasnularief",
+            "email": "arief.hasnul@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Hasnularief\\Iqueue\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php":">=5.6.4"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hasnularief\\Iqueue\\IqueueServiceProvider"
+            ]
+        }
+    }
+}
