@@ -3,7 +3,7 @@
 namespace Hasnularief\Iqueue;
 
 use Illuminate\Http\Request;
-use App\Model\Queue;
+use Hasnularief\Iqueue\Iqueue;
 use App\Events\TvQueue;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
@@ -22,11 +22,6 @@ class IqueueController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    function __construct()
-    {
-      Auth::LoginUsingId(config('iqueue.user_id'));
-    }
-
     public function index()
     {
       dd("OKE");
@@ -34,23 +29,22 @@ class IqueueController extends BaseController
 
     public function tv(Request $request)
     {
-      if(!$request->user())
-        return redirect("login");
-
-      if($request->location)
-        $location = $request->location;
-      else
+      Auth::LoginUsingId(config('iqueue.user_id'));
+      
+      if(!$request->location)
         abort(404);
+      
+      $location = $request->location;
 
-      Queue::whereDate('created_at','<>',date('Y-m-d'))->delete();
+      Iqueue::whereDate('created_at','<>', date('Y-m-d'))->delete();
 
-      $data = Queue::where('location', $location)
+      $data = Iqueue::where('location', $location)
                      ->whereNotNull('called_at')
                      ->orderBy('called_at','desc')
                      ->select('number','counter', 'type','name')
                      ->get();  
 
-      $data = $data->unique('counter')->groupBy('counter')->flatten(2);                        
+      $data = $data->unique('counter')->groupBy('counter')->flatten(2);
        
       $counter = [];
       foreach(collect(config("q.queue.counter.".$location)) as $key => $val){
@@ -58,9 +52,15 @@ class IqueueController extends BaseController
         if(substr($val,0,1) !== '!'){
           $counter[$val] = ["counter" => ($key + 1), "number" => $d ? $d->number : 0, "type" => $d ? $d->type : '-', 'name' => $d ? $d->name : '-'];
         }
-      }      
+      }
 
-    	return view('iqueue_tv', compact('counter'));
+      $tv_blade = config('iqueue.locations.' . $location . '.tv_blade' ); 
+
+      if(view()->exists($tv_blade))
+          return view($tv_blade);
+      
+      return view('iqueue::iqueue_tv', compact('counter'));
+
     }
 
     public function counter(Request $request)

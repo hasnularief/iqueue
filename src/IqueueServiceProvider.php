@@ -16,13 +16,16 @@ class IqueueServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/views','iqueue');
 
         $this->publishes([
-            __DIR__.'/views'               => base_path('resources/views/iqueue'),
             __DIR__.'/config/iqueue.php'   => config_path('iqueue.php'),
             __DIR__.'/migrations'          => base_path('database/migrations'),
             __DIR__.'/resources/assets/js' => public_path('iqueue/js'),
             __DIR__.'/resources/assets/css' => public_path('iqueue/css'),
             __DIR__.'/resources/assets/audio' => public_path('iqueue/audio'),
-        ]);
+        ], 'iqueue');
+
+        $this->publishes([
+            __DIR__.'/views' => base_path('resources/views/iqueue'),
+        ], 'iqueue-view');
     }
 
     /**

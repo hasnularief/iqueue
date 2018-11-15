@@ -5,7 +5,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
 
     <!-- Scripts -->
@@ -19,8 +18,6 @@
     <script type="text/javascript">
       const _HOST     = "{{url('')}}";
       const _LOCATION = "{{request()->location}}";
-      const _TYPES    = <?php echo json_encode(config('q.queue.locations.'.request()->location)) ?>;
-      const _NAMES    = <?php echo json_encode(config('q.queue.names.'.request()->location)) ?>;
       const _TITLE    = "{{ucfirst($title)}}";
     </script>
     <style type="text/css">
@@ -141,9 +138,6 @@
         data: {
           host     : _HOST,
           location : _LOCATION,
-          title    : _TITLE,
-          types    : _TYPES,
-          queue    : _NAMES,
           models: [
               @endverbatim
               @foreach($counter as $c)
