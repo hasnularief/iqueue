@@ -24,7 +24,7 @@ class IqueueServiceProvider extends ServiceProvider
         ], 'iqueue');
 
         $this->publishes([
-            __DIR__.'/views' => base_path('resources/views/iqueue'),
+            __DIR__.'/views/publish' => base_path('resources/views/iqueue'),
         ], 'iqueue-view');
     }
 

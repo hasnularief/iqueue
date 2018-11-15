@@ -22,12 +22,7 @@ class IqueueController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function index()
-    {
-      dd("OKE");
-		}
-
-    public function tv(Request $request)
+    public function tv(Request $request) // COMPLETE
     {
       Auth::LoginUsingId(config('iqueue.user_id'));
       
@@ -46,11 +41,16 @@ class IqueueController extends BaseController
 
       $data = $data->unique('counter')->groupBy('counter')->flatten(2);
        
-      $counter = [];
-      foreach(collect(config("q.queue.counter.".$location)) as $key => $val){
+      $counters = [];
+      $counter_configurations = config('iqueue.locations.' . $location . '.counters');
+      foreach($counter_configurations as $key => $val){
         $d = $data->where('counter', ($key + 1))->first();
         if(substr($val,0,1) !== '!'){
-          $counter[$val] = ["counter" => ($key + 1), "number" => $d ? $d->number : 0, "type" => $d ? $d->type : '-', 'name' => $d ? $d->name : '-'];
+          $counters[$val] = [
+            "counter" => ($key + 1), 
+            "number" => $d ? $d->number : 0, 
+            "type" => $d ? $d->type : '-', 
+            'name' => $d ? $d->name : '-'];
         }
       }
 
@@ -59,7 +59,7 @@ class IqueueController extends BaseController
       if(view()->exists($tv_blade))
           return view($tv_blade);
       
-      return view('iqueue::iqueue_tv', compact('counter'));
+      return view('iqueue::publish.iqueue_tv', compact('counters'));
 
     }
 
@@ -83,6 +83,7 @@ class IqueueController extends BaseController
 
       return response()->json(["obj_key" => $obj_key, "location" => ucwords($location), "counter" => $counter, "type" => $data]);
     }
+
 
     public function call(Request $request)
     {
@@ -127,15 +128,11 @@ class IqueueController extends BaseController
 
     public function last(Request $request)
     {
-      if(!$request->user())
-        return redirect("login");
+      abort_if(!$request->location, 404);
 
-      if($request->location)
-        $location = $request->location;
-      else
-        abort(404);
+      $location = $request->location;
 
-      $last = Queue::where('location', $location)
+      $last = Iqueue::where('location', $location)
                ->orderBy('created_at','desc')
                ->select('number','type','created_at')
                ->get()
@@ -150,33 +147,33 @@ class IqueueController extends BaseController
 
     public function ticket(Request $request)
     {
-      if(!$request->user())
-        return redirect("login");
+      Auth::LoginUsingId(config('iqueue.user_id'));
 
-    	if($request->location)
-    		$location = $request->location;
-    	else
-    		abort(404);              
+    	abort_if(!$request->location, 404);              
 
-		  return view('iqueue_ticket', compact('location'));
+      $location = $request->location;
+
+      $ticket_blade = config('iqueue.locations.' . $location . '.ticket_blade' ); 
+
+      if(view()->exists($ticket_blade))
+          return view($ticket_blade);
+
+		  return view('iqueue::publish.iqueue_ticket', compact('location'));
     }
 
     public function print(Request $request)
     {
-      if(!$request->user())
-        return redirect("login");
 
     	$this->validate($request,[
 				'location' => 'required',
-				'type'     => 'required',
+				//'type'     => 'required',
 			]);
 
       $location = $request->location;
-      $type     = $request->type;
-      $name     = $request->name;
+      $type     = $request->type ?: '';
       $title    = str_replace('_',' ', $request->key);
 
-    	$current = Queue::where('location', $location)
+    	$current = Iqueue::where('location', $location)
                       ->where('type', $type)
                       ->orderBy('number','desc')
                       ->first();
@@ -184,16 +181,17 @@ class IqueueController extends BaseController
 
       $nextNumber = $current ? ($current->number + 1) : 1; 
 
-      $next = new Queue();
+      $next = new Iqueue();
       $next->location = $location;
-      $next->type     = $type;
+      $next->type     = $type ?: '';
       $next->number   = $nextNumber;
-      $next->name     = $name;
       $next->save();
 
-      $notCalled = Queue::where('location', $location)->where('type', $request->type)->whereNull('called_at')->count();
+      $notCalled = Iqueue::where('location', $location)->where('type', $request->type)->whereNull('called_at')->count();
 
-      $combined = $type.'-'.$nextNumber;
+      $combined = $type ? ($type.'-'.$nextNumber) : $nextNumber;
+
+      return $this->last($request);
 
       for($i = 0; $i < 1; $i++)
       {
@@ -243,5 +241,7 @@ class IqueueController extends BaseController
         $printer -> cut();
         $printer -> close();           
       }
+
+      return $this->last($request);
       }
 }
