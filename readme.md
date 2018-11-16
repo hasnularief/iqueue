@@ -7,6 +7,7 @@ Installation
 REQUIRE FIRST
 
 php artisan vendor:publish --tag=iqueue
+set permission folder public/iqueue/ticket to 777
 
 Set printer name
 Set printer type

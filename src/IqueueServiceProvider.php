@@ -22,6 +22,7 @@ class IqueueServiceProvider extends ServiceProvider
             __DIR__.'/resources/assets/css' => public_path('iqueue/css'),
             __DIR__.'/resources/assets/audio' => public_path('iqueue/audio'),
             __DIR__.'/resources/assets/fonts' => public_path('iqueue/fonts'),
+            __DIR__.'/resources/assets/ticket' => public_path('iqueue/ticket'),
         ], 'iqueue');
 
         $this->publishes([

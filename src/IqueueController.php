@@ -207,8 +207,8 @@ class IqueueController extends BaseController
           $font->align('center');
           $font->valign('top');
         });
-        $img->save(public_path('ticket/' . $combined . '.jpg'));
-        $text = EscposImage::load(public_path('ticket/' . $combined . '.jpg'));        
+        $img->save(public_path('iqueue/ticket/' . $combined . '.jpg'));
+        $text = EscposImage::load(public_path('iqueue/ticket/' . $combined . '.jpg'));        
       
       for($i = 0; $i < 1; $i++)
       {
