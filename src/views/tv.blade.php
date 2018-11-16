@@ -60,7 +60,7 @@
         created: function() {
           const vm = this;
           window.Echo.channel('tv-queue-'+this.location)
-            .listen(".Hasnularief\\Iqueue\\IqueueEvent", (e) => {
+            .listen(".iqueue.broadcast", (e) => {
               console.log(e);
               vm.pushNumber(e.data.number, e.data.type);
               vm.pushCounter(e.data.counter);

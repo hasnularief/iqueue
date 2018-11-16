@@ -103,7 +103,7 @@ class IqueueController extends BaseController
           $d->counter = $counter;
           $d->save();
 
-          broadcast(new IqueueEvent($request->location, $counter, $d))->toOthers();
+          broadcast(new IqueueEvent($request->location, $counter, $d));
         }          
       }
       elseif($request->mode == 'RECALL'){
@@ -114,7 +114,7 @@ class IqueueController extends BaseController
                     ->orderBy('called_at','desc')->first();  
                     
         if($d){
-          broadcast(new IqueueEvent($request->location, $counter, $d))->toOthers();
+          broadcast(new IqueueEvent($request->location, $counter, $d));
         }             
       }
 

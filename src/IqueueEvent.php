@@ -37,4 +37,15 @@ class IqueueEvent implements ShouldBroadcast
     {
         return new Channel('tv-queue-'.$this->location);
     }
+
+    /**
+     * The event's broadcast name.
+     *
+     * @return string
+     */
+    public function broadcastAs()
+    {
+        return 'iqueue.broadcast';
+    }
+
 }
