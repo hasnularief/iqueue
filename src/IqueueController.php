@@ -230,13 +230,13 @@ class IqueueController extends BaseController
           $printer -> text("Lebih Dahulu"); 
           $printer -> feed(); 
           $printer -> text("Harap Sabar Menunggu"); 
-          $printer -> feed();
+          $printer -> feed(2);
         }
         else{
           $printer -> text("Silakan menunggu nomor anda dipanggil"); 
           $printer -> feed(); 
           $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
-          $printer -> feed();
+          $printer -> feed(2);
         }
         $printer -> cut();
           

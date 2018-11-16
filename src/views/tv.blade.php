@@ -59,9 +59,8 @@
 
         created: function() {
           const vm = this;
-
           window.Echo.channel('tv-queue-'+this.location)
-            .listen('IqueueEvent', (e) => {
+            .listen(".Hasnularief\\Iqueue\\IqueueEvent", (e) => {
               console.log(e);
               vm.pushNumber(e.data.number, e.data.type);
               vm.pushCounter(e.data.counter);
