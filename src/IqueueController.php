@@ -4,7 +4,7 @@ namespace Hasnularief\Iqueue;
 
 use Illuminate\Http\Request;
 use Hasnularief\Iqueue\Iqueue;
-use App\Events\TvQueue;
+use Hasnularief\Iqueue\IqueueEvent;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
@@ -87,18 +87,18 @@ class IqueueController extends BaseController
 
     public function call(Request $request)
     {
-      $key = config("q.queue.counter.".$request->location);
-      if(!$key || !$request->key)
-        abort(404);
+      $key = config("iqueue.locations." . $request->location . ".counters");
+      
+      abort_if(!$key || !$request->key, 404);
 
       $counter = array_search($request->key, $key);
-      if($counter)
-        $counter += 1;
-      else
-        abort(404);
+
+      abort_if(!$counter, 404);
+      
+      $counter += 1;
 
       if($request->mode == 'CALL'){
-        $d = Queue::where('location', $request->location)
+        $d = Iqueue::where('location', $request->location)
                   ->where('type', $request->type)
                   ->whereNull('called_at')
                   ->orderBy('number')
@@ -109,24 +109,24 @@ class IqueueController extends BaseController
           $d->counter = $counter;
           $d->save();
 
-          broadcast(new TvQueue($request->location, $counter, $d));
+          broadcast(new IqueueEvent($request->location, $counter, $d));
         }          
       }
       elseif($request->mode == 'RECALL'){
-        $d = Queue::where('location', $request->location)
+        $d = Iqueue::where('location', $request->location)
                     ->where('counter',$counter)
                     ->whereNotNull('called_at')
                     ->orderBy('called_at','desc')->first();  
                     
         if($d){
-          broadcast(new TvQueue($request->location, $counter, $d));
+          broadcast(new IqueueEvent($request->location, $counter, $d));
         }             
       }
 
       return $d ? $d->type."-".$d->number : "-"; 
     }
 
-    public function last(Request $request)
+    private function last(Request $request)
     {
       abort_if(!$request->location, 404);
 
@@ -193,13 +193,17 @@ class IqueueController extends BaseController
 
       return $this->last($request);
 
-      for($i = 0; $i < 1; $i++)
-      {
-        //$connector = new NetworkPrintConnector(config("q.queue.printer.".$location), 9100);    
-        $profile = CapabilityProfile::load("simple");  
-        // $profile = CapabilityProfile::load("SP2000");  
+      $profile = CapabilityProfile::load("simple");  
+
+      $printer_type = config('iqueue.locations.' . $location . '.printer_type');
+      $printer_string = config('iqueue.locations.' . $location . '.printer');
+      $alias = config('iqueue.locations.' . $location . '.alias') ?: $location;
+      
+      if($printer_type == 'windows')
+        $connector = new WindowsPrintConnector($printer_string);
+      else
+        $connector = new NetworkPrintConnector($printer, 9100);    
         
-        $connector = new WindowsPrintConnector("smb://192.168.10.200/Epson TM-U220 Receipt");
         $printer = new Printer($connector, $profile);
         $printer->initialize();
         $printer->setJustification(Printer::JUSTIFY_CENTER);
@@ -212,8 +216,10 @@ class IqueueController extends BaseController
         });
         $img->save(public_path('ticket/' . $combined . '.jpg'));
         $text = EscposImage::load(public_path('ticket/' . $combined . '.jpg'));        
+      for($i = 0; $i < 1; $i++)
+      {
         $printer->setTextSize(2,2);
-        $printer->text('Antrian ' . ucwords($title));
+        $printer->text('Antrian ' . ucwords($alias));
         $printer->feed(); 
          $printer->bitImageColumnFormat($text, Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
         //$printer->graphics($text);
@@ -239,8 +245,9 @@ class IqueueController extends BaseController
           $printer -> feed(2);
         }
         $printer -> cut();
-        $printer -> close();           
+          
       }
+      $printer -> close();
 
       return $this->last($request);
       }
