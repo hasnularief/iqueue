@@ -35,6 +35,6 @@ class IqueueEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('tv-queue-'.$this->location);
+        return new Channel('tv-queue-'.$this->location);
     }
 }

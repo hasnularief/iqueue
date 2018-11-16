@@ -24,7 +24,6 @@ class IqueueController extends BaseController
 
     public function tv(Request $request) // COMPLETE
     {
-      Auth::LoginUsingId(config('iqueue.user_id'));
       
       if(!$request->location)
         abort(404);
@@ -66,22 +65,16 @@ class IqueueController extends BaseController
     public function counter(Request $request)
     {
       $data = [];
-      $location = "";
-      $obj_key = "";
-      $counter = 0;
-      foreach(collect(config("q.queue.counter")) as $key => $val){
+      $location = config('iqueue.locations.' . $request->location . '.alias');
+      $types = config("iqueue.locations." . $request->location . '.types');
       
-        if(in_array($request->key, $val)){
-          $location = str_replace('_',' ',$key);
-          $obj_key = $key;
-          $counter = array_search($request->key, $val) + 1;
-          foreach(config("q.queue.locations.".$key) as $idx => $type){
-            $data[$type] = config("q.queue.names.".$key)[$idx] ?? "Antrian";
-          }
-       }
+      foreach ($types as $type) {
+        $data[$type] = $type;
       }
+     
+      $counter = array_search($request->key, config('iqueue.locations.'. $request->location . '.counters')) + 1;
 
-      return response()->json(["obj_key" => $obj_key, "location" => ucwords($location), "counter" => $counter, "type" => $data]);
+      return response()->json([ "location" => $location,  "counter" => $counter,  "type" => $data ]);
     }
 
 
@@ -100,6 +93,7 @@ class IqueueController extends BaseController
       if($request->mode == 'CALL'){
         $d = Iqueue::where('location', $request->location)
                   ->where('type', $request->type)
+                  ->whereDate('created_at', date('Y-m-d'))
                   ->whereNull('called_at')
                   ->orderBy('number')
                   ->first();
@@ -109,17 +103,18 @@ class IqueueController extends BaseController
           $d->counter = $counter;
           $d->save();
 
-          broadcast(new IqueueEvent($request->location, $counter, $d));
+          broadcast(new IqueueEvent($request->location, $counter, $d))->toOthers();
         }          
       }
       elseif($request->mode == 'RECALL'){
         $d = Iqueue::where('location', $request->location)
                     ->where('counter',$counter)
                     ->whereNotNull('called_at')
+                    ->whereDate('created_at', date('Y-m-d'))
                     ->orderBy('called_at','desc')->first();  
                     
         if($d){
-          broadcast(new IqueueEvent($request->location, $counter, $d));
+          broadcast(new IqueueEvent($request->location, $counter, $d))->toOthers();
         }             
       }
 
@@ -147,8 +142,6 @@ class IqueueController extends BaseController
 
     public function ticket(Request $request)
     {
-      Auth::LoginUsingId(config('iqueue.user_id'));
-
     	abort_if(!$request->location, 404);              
 
       $location = $request->location;
@@ -175,6 +168,7 @@ class IqueueController extends BaseController
 
     	$current = Iqueue::where('location', $location)
                       ->where('type', $type)
+                      ->whereDate('created_at', date('Y-m-d'))
                       ->orderBy('number','desc')
                       ->first();
 
@@ -191,7 +185,6 @@ class IqueueController extends BaseController
 
       $combined = $type ? ($type.'-'.$nextNumber) : $nextNumber;
 
-      return $this->last($request);
 
       $profile = CapabilityProfile::load("simple");  
 
@@ -209,13 +202,14 @@ class IqueueController extends BaseController
         $printer->setJustification(Printer::JUSTIFY_CENTER);
         $img = Image::canvas(217,89);
         $img->text($combined, 100, 30, function($font){
-          // $font->file(public_path('/assets/fonts/tahoma.ttf'));
+          $font->file(public_path('/iqueue/fonts/tahoma.ttf'));
           $font->size(80);
           $font->align('center');
           $font->valign('top');
         });
         $img->save(public_path('ticket/' . $combined . '.jpg'));
         $text = EscposImage::load(public_path('ticket/' . $combined . '.jpg'));        
+      
       for($i = 0; $i < 1; $i++)
       {
         $printer->setTextSize(2,2);
@@ -225,7 +219,7 @@ class IqueueController extends BaseController
         //$printer->graphics($text);
         $printer->feed(); 
         $printer->setTextSize(1,1);
-        $printer->text('Antrian : ' . $name);
+        $printer->text('Antrian : ' . $alias);
         $printer->feed(); 
         $printer->text("Jam : " . date("Y-m-d H:i:s") . " WIB");
         $printer->feed();
@@ -236,17 +230,18 @@ class IqueueController extends BaseController
           $printer -> text("Lebih Dahulu"); 
           $printer -> feed(); 
           $printer -> text("Harap Sabar Menunggu"); 
-          $printer -> feed(2);
+          $printer -> feed();
         }
         else{
           $printer -> text("Silakan menunggu nomor anda dipanggil"); 
           $printer -> feed(); 
           $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
-          $printer -> feed(2);
+          $printer -> feed();
         }
         $printer -> cut();
           
       }
+
       $printer -> close();
 
       return $this->last($request);

@@ -60,20 +60,13 @@
         created: function() {
           const vm = this;
 
-          window.Echo.private('tv-queue-'+this.location)
-            .listen('TvQueue', (e) => {
+          window.Echo.channel('tv-queue-'+this.location)
+            .listen('IqueueEvent', (e) => {
               console.log(e);
               vm.pushNumber(e.data.number, e.data.type);
               vm.pushCounter(e.data.counter);
               
               vm.setNumber(e.data);
-
-              // var select = '#panel_'+e.counter+' .panel-body';
-
-              // $(select).addClass('blink');
-              // setTimeout(function(){
-              //     $(select).removeClass('blink');
-              // }, 2000);
 
               if(!vm.playing){
                   vm.newPlay();

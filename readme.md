@@ -15,7 +15,9 @@ Register user in http://your-app.test/register
 Set user_id in config/iqueue.php, Default 1
 Set printer name
 Set printer type
-Set broadcast driver redis
+Set BROADCAST_DRIVER=redis in .env
+Uncomment BroadcastServiceProvider in config\app.php
+run artisan config:cache
 
 Install and run https://redis.io/ (Laravel echo server require redis)
 Install globally and run https://github.com/tlaverdure/laravel-echo-server as laravel echo broadcasting server with socket.io
