@@ -140,7 +140,7 @@ class IqueueController extends BaseController
       return response()->json($last);
     }
 
-    public function ticket(Request $request)
+    public function tickets(Request $request)
     {
     	abort_if(!$request->location, 404);              
 
