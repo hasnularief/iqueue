@@ -7,7 +7,7 @@ Install dan jalankan [Redis](https://redis.io/) (Laravel echo server require red
 
 ### Installation
 ```shell
-composer require hasnularief/iqueue
+composer require hasnularief/iqueue:1.0.0
 ```
 ### Export configurations
 ``` shell
