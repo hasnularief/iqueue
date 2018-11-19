@@ -119,7 +119,10 @@ class IqueueController extends BaseController
         }             
       }
 
-      return $d ? $d->type."-".$d->number : "-"; 
+      if($d)
+        return $d->type ? $d->type."-".$d->number : $d->number; 
+      else
+        return "-";
     }
 
     private function last(Request $request)
