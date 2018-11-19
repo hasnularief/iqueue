@@ -38,6 +38,11 @@ php artisan queue:work
     http://your-app.test/iqueue/call?location={location}&type={A}&key={counter_key}&mode={CALL}
 Atau dapat menggunakan aplikasi windows yang telah disediakan.
 
+### Customize
+Untuk mengkustom tampilan tv dan ticket sebelumnya dapat mengeksport blade terlebih dahulu.
+    php artisan vendor:publish --tag=iqueue-view
+file blade baru akan ada di folder `view\iqueue` project laravel. Silahkan kustom kemudian daftarkan di `config\iqueue.php`
+
 ### Catatan
 Iqueue akan menghapus database tanggal sebelumnya saat merefresh halaman tv.
 
