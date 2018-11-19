@@ -56,7 +56,7 @@ class IqueueController extends BaseController
       $tv_blade = config('iqueue.locations.' . $location . '.tv_blade' ); 
 
       if(view()->exists($tv_blade))
-          return view($tv_blade);
+          return view($tv_blade, compact('counters'));
       
       return view('iqueue::publish.iqueue_tv', compact('counters'));
 
@@ -140,7 +140,7 @@ class IqueueController extends BaseController
       return response()->json($last);
     }
 
-    public function tickets(Request $request)
+    public function ticket(Request $request)
     {
     	abort_if(!$request->location, 404);              
 
@@ -149,7 +149,7 @@ class IqueueController extends BaseController
       $ticket_blade = config('iqueue.locations.' . $location . '.ticket_blade' ); 
 
       if(view()->exists($ticket_blade))
-          return view($ticket_blade);
+          return view($ticket_blade, compact('location'));
 
 		  return view('iqueue::publish.iqueue_ticket', compact('location'));
     }
@@ -189,6 +189,7 @@ class IqueueController extends BaseController
       $profile = CapabilityProfile::load("simple");  
 
       $printer_type = config('iqueue.locations.' . $location . '.printer_type');
+      $copy = config('iqueue.locations.' . $location . '.print_copy');
       $printer_string = config('iqueue.locations.' . $location . '.printer');
       $alias = config('iqueue.locations.' . $location . '.alias') ?: $location;
       
@@ -207,15 +208,14 @@ class IqueueController extends BaseController
           $font->align('center');
           $font->valign('top');
         });
-        $img->save(public_path('iqueue/ticket/' . $combined . '.jpg'));
-        $text = EscposImage::load(public_path('iqueue/ticket/' . $combined . '.jpg'));        
-      
-      for($i = 0; $i < 1; $i++)
-      {
+        $img->save(public_path('iqueue/images/' . $combined . '.jpg'));
+        $text = EscposImage::load(public_path('iqueue/images/' . $combined . '.jpg'));
+
+      for($i=0; $i<$copy; $i++) {
         $printer->setTextSize(2,2);
-        $printer->text('Antrian ' . ucwords($alias));
+        $printer->text('Antrian ' . ucwords(config('iqueue.name') ?: $alias));
         $printer->feed(); 
-         $printer->bitImageColumnFormat($text, Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
+        $printer->bitImageColumnFormat($text, Printer::IMG_DOUBLE_WIDTH | Printer::IMG_DOUBLE_HEIGHT);
         //$printer->graphics($text);
         $printer->feed(); 
         $printer->setTextSize(1,1);
@@ -230,18 +230,15 @@ class IqueueController extends BaseController
           $printer -> text("Lebih Dahulu"); 
           $printer -> feed(); 
           $printer -> text("Harap Sabar Menunggu"); 
-          $printer -> feed(2);
         }
         else{
           $printer -> text("Silakan menunggu nomor anda dipanggil"); 
           $printer -> feed(); 
           $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
-          $printer -> feed(2);
         }
+        $printer -> feed(2);
         $printer -> cut();
-          
       }
-
       $printer -> close();
 
       return $this->last($request);

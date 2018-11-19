@@ -1,31 +1,52 @@
+# IQUEUE SYSTEM 
+## (SISTEM INFORMASI ANTRIAN BAHASA INDONESIA MULTI LOKASI)
 
+### Requirements
+Install Socket.io server dan initialize [tlaverdure/laravel-echo-server](https://github.com/tlaverdure/laravel-echo-server)
+Install dan jalankan [Redis](https://redis.io/) (Laravel echo server require redis)
 
-IQUEUE SYSTEM (SISTEM INFORMASI ANTRIAN BAHASA INDONESIA)
-
-Installation
-
-REQUIRE FIRST
-
+### Installation
+```shell
+composer require hasnularief/iqueue
+```
+### Export configurations
+``` shell
 php artisan vendor:publish --tag=iqueue
-set permission folder public/iqueue/ticket to 777
+```
+Set permission folder `public/iqueue/ticket` to `rw`
+Set `printer_name` and `printer_type` in `config\iqueue.php`
+Set `BROADCAST_DRIVER=redis` in `.env`
+Set `timezone` in `config\app.php`
+Uncomment `BroadcastServiceProvider` in `config\app.php`
+Finally run `php artisan config:cache`
 
-Set printer name
-Set printer type
-Set BROADCAST_DRIVER=redis in .env
-Uncomment BroadcastServiceProvider in config\app.php
-run artisan config:cache
+### Run Services
+Run laravel-echo-server
+```shell
+laravel-echo-server start
+```
+Run laravel queue
+```shell
+php artisan queue:work
+```
 
-Install and run https://redis.io/ (Laravel echo server require redis)
-Install secara global dan jalankan https://github.com/tlaverdure/laravel-echo-server as laravel echo broadcasting server with socket.io
-Run php artisan queue:work 
+#### Link TV dan Cetak Ticket
+    http://your-app.test/iqueue/tv?location={location}
+    http://your-app.test/iqueue/ticket?location={location}
 
-Iqueue akan menghapus tanggal sebelumnya saat membuka halaman tv. Pastikan timezone sudah diatur dengan benar.
-http://your-app.test/iqueue/tv?location=location
-http://your-app.test/iqueue/ticket?location=location
+### Link Pemanggil
+    http://your-app.test/iqueue/call?location={location}&type={A}&key={counter_key}&mode={CALL}
+Atau dapat menggunakan aplikasi windows yang telah disediakan.
 
+### Catatan
+Iqueue akan menghapus database tanggal sebelumnya saat merefresh halaman tv.
+
+### Bantuan
 Untuk printer type windows, set net use connection from cmd. Windows harus memiliki user name dan password
+```` shell
 net use LPT1: "\\COMPUTER_PRINTER\PRINTER_NAME" /persistent:yes /user:"computer user" password
-coba hapus dan buat lagi, dan restart service net use jika gagal.
+````
+Jika gagal coba hapus dan buat lagi, serta restart service net use .
 
-Untuk otomatis login user
+Untuk otomatis login user windows
 https://www.cnet.com/how-to/how-to-log-on-to-windows-7-automatically/

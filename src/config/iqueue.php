@@ -2,6 +2,9 @@
 
 return [
 
+	// Company name. if null use alias
+	'name' => null,
+
 	// Iqueue connection database
 	'connection' => 'mysql',
 
