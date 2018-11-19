@@ -68,6 +68,7 @@ class IqueueController extends BaseController
       $location = config('iqueue.locations.' . $request->location . '.alias');
       $types = config("iqueue.locations." . $request->location . '.types');
       
+      if($types)
       foreach ($types as $type) {
         $data[$type] = $type;
       }
@@ -86,7 +87,7 @@ class IqueueController extends BaseController
 
       $counter = array_search($request->key, $key);
 
-      abort_if(!$counter, 404);
+      abort_if(!$counter && $counter !== 0, 404);
       
       $counter += 1;
 
@@ -196,7 +197,7 @@ class IqueueController extends BaseController
       if($printer_type == 'windows')
         $connector = new WindowsPrintConnector($printer_string);
       else
-        $connector = new NetworkPrintConnector($printer, 9100);    
+        $connector = new NetworkPrintConnector($printer_string, 9100);    
         
         $printer = new Printer($connector, $profile);
         $printer->initialize();
@@ -223,19 +224,9 @@ class IqueueController extends BaseController
         $printer->feed(); 
         $printer->text("Jam : " . date("Y-m-d H:i:s") . " WIB");
         $printer->feed();
-
-        if($location == "pharmacy" && $type == 'R'){
-          $printer -> text("Obat Antrian (R) Harus Diracik"); 
-          $printer -> feed(); 
-          $printer -> text("Lebih Dahulu"); 
-          $printer -> feed(); 
-          $printer -> text("Harap Sabar Menunggu"); 
-        }
-        else{
-          $printer -> text("Silakan menunggu nomor anda dipanggil"); 
-          $printer -> feed(); 
-          $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
-        }
+        $printer -> text("Silakan menunggu nomor anda dipanggil"); 
+        $printer -> feed(); 
+        $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
         $printer -> feed(2);
         $printer -> cut();
       }

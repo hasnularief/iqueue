@@ -40,10 +40,10 @@
     </style>
 @endsection
   @section('body')
-  	<main id="vue-app" class="pt-4">
+    <main id="vue-app" class="pt-4">
       <audio id="player"></audio>
       <h1 class="text-center location">@{{alias}}</h1>
-  		<div class="container tv-queue">
+      <div class="container tv-queue">
         <div class="row">
           <div v-for="(m, index, key) in models" class="col-lg-4 tv-box">
                   <div class="card">
@@ -52,7 +52,8 @@
                       <div class="flex-container flex-one">
                         <div class="flex-item">
                           <div>
-                            <span v-if="m.number && m.type" class="queue-number">@{{m.type + " - " +m.number}}</span>
+                            <span v-if="!m.type" class="queue-number">@{{m.number}}</span>
+                            <span v-else-if="m.number && m.type" class="queue-number">@{{m.type + " - " +m.number}}</span>
                             <span v-else class="queue-number">---</span>
                             <br>
                             <span class="queue-name">@{{m.name}}</span>
@@ -65,7 +66,7 @@
               </div>
         </div>   
       </div>
-  	</main>
+    </main>
     @endsection
 
     

@@ -149,7 +149,9 @@
 
           pushNumber: function(number, letter){
             this.playlist.push(this.host + '/iqueue/audio/NoAntrian.mp3');
-            this.playlist.push(this.host + '/iqueue/audio/'+ letter +'.mp3');
+            if(letter !== '')
+              this.playlist.push(this.host + '/iqueue/audio/'+ letter +'.mp3');
+            
             this.splitNumber(number);
           },
 
