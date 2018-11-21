@@ -93,7 +93,7 @@ class IqueueController extends BaseController
 
       if($request->mode == 'CALL'){
         $d = Iqueue::where('location', $request->location)
-                  ->where('type', $request->type)
+                  ->where('type', $request->type == 'null' ? '' : $request->type)
                   ->whereDate('created_at', date('Y-m-d'))
                   ->whereNull('called_at')
                   ->orderBy('number')

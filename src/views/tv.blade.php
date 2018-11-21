@@ -149,8 +149,13 @@
 
           pushNumber: function(number, letter){
             this.playlist.push(this.host + '/iqueue/audio/NoAntrian.mp3');
-            if(letter !== '')
-              this.playlist.push(this.host + '/iqueue/audio/'+ letter +'.mp3');
+            
+            if(letter !== '' && letter.length > 0){
+              for(var i = 0; i <= letter.length; i++){
+                if(letter.charAt(i) !== '')
+                  this.playlist.push(this.host + '/iqueue/audio/'+ letter.charAt(i) +'.mp3');
+              }
+            }
             
             this.splitNumber(number);
           },
