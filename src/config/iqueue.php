@@ -9,7 +9,7 @@ return [
 	'connection' => 'mysql',
 
 	// Laravel Queue name
-	'queue_name' => null, 
+	'queue_name' => 'default', 
 
 	// Iqueue Support Multiple locations
 	'locations' => [
@@ -23,7 +23,7 @@ return [
 			'printer' => 'localhost/Epson TM-U220 Receipt',
 			'printer_type' => 'network', // windows | network
 			'print_copy' => 1,
-			'ticket_template' => null, //if null use default template
+			'ticket_notes' => null, //Add notes in the end of ticket
 		],
 
 		'pharmacy' => [
@@ -35,7 +35,7 @@ return [
 			'printer' => 'smb://localhost/Epson TM-U220 Receipt',
 			'printer_type' => 'windows', // windows | network
 			'print_copy' => 1,
-			'ticket_template' => null, //if null use default template
+			'ticket_notes' => null, //Add notes in the end of ticket
 		],
 
 		'mcu' => [
@@ -47,7 +47,7 @@ return [
 			'printer' => 'smb://localhost/Epson TM-U220 Receipt',
 			'printer_type' => 'windows', // windows | network
 			'print_copy' => 1,
-			'ticket_template' => null, //if null use default template
+			'ticket_notes' => null, //Add notes in the end of ticket
 		],
 
 		// ... You can add other locations with their configurations

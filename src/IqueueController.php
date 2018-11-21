@@ -227,11 +227,17 @@ class IqueueController extends BaseController
         $printer->feed(); 
         $printer->text("Jam : " . date("Y-m-d H:i:s") . " WIB");
         $printer->feed();
-        $printer -> text("Silakan menunggu nomor anda dipanggil"); 
-        $printer -> feed(); 
-        $printer -> text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
-        $printer -> feed(2);
-        $printer -> cut();
+        $printer->text("Silakan menunggu nomor anda dipanggil"); 
+        $printer->feed(); 
+        $printer->text("Antrian yang belum dipanggil " . $notCalled .  " orang"); 
+        
+        if(config('iqueue.locations.' . $location . '.ticket_notes')){
+          $printer->feed();
+          $printer->text(config('iqueue.locations.' . $location . '.ticket_notes')); 
+        }
+
+        $printer->feed(2);
+        $printer->cut();
       }
       $printer -> close();
 
