@@ -11,6 +11,9 @@ return [
 	// Laravel Queue name
 	'queue_name' => 'default', 
 
+	// reset middleware
+	'reset_middleware' => null,
+
 	// Iqueue Support Multiple locations
 	'locations' => [
 
