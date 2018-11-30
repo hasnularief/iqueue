@@ -27,7 +27,7 @@ class IqueueEvent implements ShouldBroadcast
         $this->counter  = $counter;
         $this->data     = $data;
 
-        $this->$broadcastQueue = config('iqueue.queue_name');
+        $this->broadcastQueue = config('iqueue.queue_name');
     }
 
     /**

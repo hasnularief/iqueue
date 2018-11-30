@@ -91,6 +91,8 @@ public function tv(Request $request) // COMPLETE
 
             $counter += 1;
 
+            $d = null;
+
             if($request->mode == 'CALL'){
                 $d = Iqueue::where('location', $request->location)
                 ->where('type', $request->type == 'null' ? '' : $request->type)
