@@ -2,32 +2,59 @@
 ## (SISTEM INFORMASI ANTRIAN BAHASA INDONESIA MULTI LOKASI)
 
 ### Requirements
-Install Socket.io server dan initialize [tlaverdure/laravel-echo-server](https://github.com/tlaverdure/laravel-echo-server)
-Install dan jalankan [Redis](https://redis.io/) (Laravel echo server require redis)
+Install Laravel Websocket server dan initialize [beyondcode/laravel-websockets](https://github.com/beyondcode/laravel-websockets)
+```shell
+composer require beyondcode/laravel-websockets
+```
+
+### Optional Requirements
+Install pusher-php-server jika menggunakan pusher [pusher/pusher-http-php](https://github.com/pusher/pusher-http-php)
+```shell
+composer require pusher/pusher-php-server "~3.0"
+```
 
 ### Installation
 ```shell
 composer require hasnularief/iqueue
 ```
+
 ### Export configurations
 ``` shell
 php artisan vendor:publish --tag=iqueue
+php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsServiceProvider" --tag="config"
+php artisan migrate
 ```
 Set permission folder `public/iqueue/ticket` to `rw`
 Set `printer_name` and `printer_type` in `config\iqueue.php`
-Set `BROADCAST_DRIVER=redis` in `.env`
+Set `'socket' => 'pusher'` in `config\iqueue.php`
+Set `DATABASE`, 
+    `BROADCAST_DRIVER=pusher`, 
+    `PUSHER_APP_ID`
+    `PUSHER_APP_KEY`
+    `PUSHER_APP_SECRET` in `.env`
+Set `'pusher' => [
+            'driver' => 'pusher',
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
+            'options' => [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true,
+                'host' => '127.0.0.1', // edit
+                'port' => 6001, // edit
+                'scheme' => 'http' // edit
+            ],
+        ],` in `config\broadcasting.php`
 Set `timezone` in `config\app.php`
 Uncomment `BroadcastServiceProvider` in `config\app.php`
-Finally run `php artisan config:cache`
+
+Finally run `php artisan config:cache` and `php artisan route:cache`
 
 ### Run Services
-Run laravel-echo-server
+Run websocket-server
 ```shell
-laravel-echo-server start
-```
-Run laravel queue
-```shell
-php artisan queue:work
+php artisan websocket:serve
 ```
 
 #### Link TV dan Cetak Ticket
