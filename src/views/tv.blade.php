@@ -1,7 +1,6 @@
 <?php
   $location = request()->location; 
   $alias = config('iqueue.locations.' . $location . '.alias');
-  $socket = config('iqueue.socket'); 
 
 ?>
 <html>
@@ -16,21 +15,14 @@
     <script type="text/javascript" src="{{ asset('iqueue/js/vue.js') }}"></script>
     <script type="text/javascript" src="{{ asset('iqueue/js/axios.min.js') }}"></script>
 
-@if($socket == 'pusher')
     <!-- PUSHER -->
     <script type="text/javascript" src="{{ asset('iqueue/js/echo.js') }}"></script>
     <script type="text/javascript" src="{{ asset('iqueue/js/pusher.js') }}"></script>
-@else
-    <!-- SOCKET IO -->
-    <script type="text/javascript" src="{{ asset('iqueue/js/echo.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('iqueue/js/socket.io.js') }}"></script>
-@endif
 
     <script type="text/javascript">
       const _HOST     = "{{url('')}}";
       const _LOCATION = "{{request()->location}}";
       const _ALIAS    = "{{$alias}}";
-      const _SOCKET   = "{{$socket}}";
       
     </script>
 
@@ -42,28 +34,14 @@
     @yield('body')
 <script>
 
-      if(_SOCKET == 'pusher'){
-        // PUSHER
-        //
         window.Echo = new Echo({
           broadcaster: 'pusher',
-          // key: process.env.MIX_PUSHER_APP_KEY, /* eslint-disable-line */
-          // cluster: process.env.MIX_PUSHER_APP_CLUSTER, /* eslint-disable-line */
           key: "{{config('broadcasting.connections.pusher.key')}}",
           cluster: "{{config('broadcasting.connections.pusher.options.cluster')}}",
           wsHost: window.location.hostname,
           wsPort: 6001
         });
-      }
-      else{
-        // SOCKET IO
-        //
-        window.Echo = new Echo({
-          broadcaster: 'socket.io',
-          host: window.location.hostname + ':6001'
-        });
-      }
-
+        
       player.addEventListener('ended', function(e){
           this.playMe()
       }); 
