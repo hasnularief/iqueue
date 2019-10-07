@@ -8,9 +8,6 @@ return [
 	// Iqueue connection database
 	'connection' => 'mysql',
 
-	// Socket
-	'socket' => 'socket.io', //OR 'pusher'
-
 	// Laravel Queue name
 	'queue_name' => 'default', 
 
