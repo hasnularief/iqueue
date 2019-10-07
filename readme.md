@@ -23,7 +23,7 @@ php artisan migrate
        `PUSHER_APP_KEY=your_pusher_app_key`,
        `PUSHER_APP_SECRET=your_pusher_app_secret` in `.env` file
 4. Set in `config/broadcasting.php`
-```json
+```php
 // config/broadcasting.php
 'pusher' => [
             'driver' => 'pusher',
