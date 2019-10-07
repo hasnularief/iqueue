@@ -1,23 +1,13 @@
 # IQUEUE SYSTEM 
 ## (SISTEM INFORMASI ANTRIAN BAHASA INDONESIA MULTI LOKASI)
 
-### Requirements
-Install Laravel Websocket server dan initialize [beyondcode/laravel-websockets](https://github.com/beyondcode/laravel-websockets)
-```shell
-composer require beyondcode/laravel-websockets
-```
-
-### Optional Requirements
-Install pusher-php-server jika menggunakan pusher [pusher/pusher-http-php](https://github.com/pusher/pusher-http-php)
-```shell
-composer require pusher/pusher-php-server "~3.0"
-```
+## Requirement
+Laravel 6.0 and configurated database
 
 ### Installation
 ```shell
 composer require hasnularief/iqueue
 ```
-
 ### Export configurations
 ``` shell
 php artisan vendor:publish --tag=iqueue
@@ -25,15 +15,17 @@ php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsSe
 php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsServiceProvider" --tag="config"
 php artisan migrate
 ```
-Set permission folder `public/iqueue/ticket` to `rw`
-Set `printer_name` and `printer_type` in `config\iqueue.php`
-Set `'socket' => 'pusher'` in `config\iqueue.php`
-Set `DATABASE`, 
-    `BROADCAST_DRIVER=pusher`, 
-    `PUSHER_APP_ID`
-    `PUSHER_APP_KEY`
-    `PUSHER_APP_SECRET` in `.env`
-Set `'pusher' => [
+### Configurations
+1. Set permission folder `public/iqueue/ticket` to `rw`
+2. Set `printer_name` and `printer_type` in `config\iqueue.php`
+3. Set `BROADCAST_DRIVER=pusher`, 
+       `PUSHER_APP_ID=your_pusher_app_id`, 
+       `PUSHER_APP_KEY=your_pusher_app_key`,
+       `PUSHER_APP_SECRET=your_pusher_app_secret` in `.env` file
+4. Set in `config/broadcasting.php`
+```json
+// config/broadcasting.php
+'pusher' => [
             'driver' => 'pusher',
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
@@ -41,13 +33,13 @@ Set `'pusher' => [
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => true,
-                'host' => '127.0.0.1', // edit
-                'port' => 6001, // edit
-                'scheme' => 'http' // edit
+                'host' => '127.0.0.1', // add_key_value
+                'port' => 6001, // add_key_value
+                'scheme' => 'http' // add_key_value
             ],
-        ],` in `config\broadcasting.php`
+        ], 
+```
 Set `timezone` in `config\app.php`
-Uncomment `BroadcastServiceProvider` in `config\app.php`
 
 Finally run `php artisan config:cache` and `php artisan route:cache`
 
